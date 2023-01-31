@@ -128,3 +128,35 @@ services:
     ...
 ```
 
+### Dockerizing the Ingestion Script
+Convert jupyter notebook to python script
+```jupyter nbconvert --to=script 01_test_ingest_data.ipynb```
+Rename the file to `ingest_data.py`
+```mv 01_test_ingest_data.py ingest_data.py```
+Ingest the data using the Python script
+```
+export URL="{Enter data url}"
+python ingest_data.py \
+  --user=root \
+  --password=root \
+  --host=localhost \
+  --port=5432 \
+  --db=ny_taxi \
+  --table_name=yellow_taxi_trips \
+  --url=${URL}
+```
+Run the [Dockerfile](https://www.example.com)
+```
+docker build -t taxi_ingest:v001 .
+
+docker run -it \
+  --network=pg-network \
+  taxi_ingest:v001 \
+  --user=root \
+  --password=root \
+  --host=pg-database \
+  --port=5432 \
+  --db=ny_taxi \
+  --table_name=yellow_taxi_trips \
+  --url=${URL}
+```
