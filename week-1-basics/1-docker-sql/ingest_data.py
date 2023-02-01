@@ -3,7 +3,7 @@ import argparse
 import os
 from sqlalchemy import create_engine
 from time import time 
-
+##
 def ingest_data(csv_file, table_name, engine, chunk=10000):
     df_iter = pd.read_parquet(csv_file, iterator=True, chunksize=chunk)
 
