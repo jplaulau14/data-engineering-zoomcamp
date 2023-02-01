@@ -21,7 +21,7 @@ docker run -it \
     postgres:13
 ```
 
-**Linux and MacOS**
+**MacOS**
 ```
 docker run -it \
     -e POSTGRES_USER="root" \
