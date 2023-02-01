@@ -150,7 +150,7 @@ Run the [Dockerfile](https://www.example.com)
 docker build -t taxi_ingest:v001 .
 
 docker run -it \
-  --network=pg-network \
+  --network=1-docker-sql_default \
   taxi_ingest:v001 \
   --user=root \
   --password=root \

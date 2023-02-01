@@ -2,47 +2,52 @@ import pandas as pd
 import argparse
 import os
 from sqlalchemy import create_engine
-from time import time 
-##
-def ingest_data(csv_file, table_name, engine, chunk=10000):
-    df_iter = pd.read_parquet(csv_file, iterator=True, chunksize=chunk)
+from time import time
 
-    while True:
+def parquet_to_csv(parquet_file, csv_file):
+    df = pd.read_parquet(parquet_file, engine = 'pyarrow')
+    df.to_csv(csv_file, index=False)
+
+def ingest(csv_file, table_name, engine, chunksize=100000):
+    df_iter = pd.read_csv(csv_file, iterator=True, chunksize=chunksize)
+    run = True
+    while run:
         try:
-            time_start = time()
+            t_start = time()
             df = next(df_iter)
             df['tpep_pickup_datetime'] = pd.to_datetime(df['tpep_pickup_datetime'])
             df['tpep_dropoff_datetime'] = pd.to_datetime(df['tpep_dropoff_datetime'])
-            df.to_sql(table_name, engine, if_exists='append', index=False)
-            time_end = time()
-            print(f'Ingested {chunk} rows in {time_end - time_start} seconds')
-        except StopIteration:
-            print('Finished ingesting data')
-            break
+            df.to_sql(name=table_name, con=engine, if_exists='append')
+            t_end = time()
+            print(f'inserted another chunk, took {t_end-t_start:.3f} seconds')
+        except Exception:
+            run = False
 
 def main(params):
-    user = params['user']
-    password = params['password']
-    host = params['host']
-    port = params['port']
-    database = params['db']
-    table_name = params['table_name']
-    url = params['url']
+    user = params.user
+    password = params.password
+    host = params.host 
+    port = params.port 
+    db = params.db
+    table_name = params.table_name
+    url = params.url
     parquet_file = 'output.parquet'
+    csv_file = 'output.csv'
     os.system(f'wget {url} -O {parquet_file}')
-    engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database}')
+    parquet_to_csv(parquet_file, csv_file)
+    engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
     engine.connect()
-    ingest_data(parquet_file, table_name, engine)
+    ingest(csv_file, table_name, engine)
+    
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Ingest data')
-    parser.add_argument('--user', required=True, type=str, help='Database user')
-    parser.add_argument('--password', required=True, type=str, help='Database password')
-    parser.add_argument('--host', required=True, type=str, help='Database host')
-    parser.add_argument('--port', required=True, type=str, help='Database port')
-    parser.add_argument('--db', required=True, type=str, help='Database name')
-    parser.add_argument('--table_name', required=True, type=str, help='Table name')
-    parser.add_argument('--url', required=True, type=str, help='URL to download parquet file')
+    parser = argparse.ArgumentParser(description='Ingest CSV data to Postgres')
+    parser.add_argument('--user', required=True, help='user name for postgres')
+    parser.add_argument('--password', required=True, help='password for postgres')
+    parser.add_argument('--host', required=True, help='host for postgres')
+    parser.add_argument('--port', required=True, help='port for postgres')
+    parser.add_argument('--db', required=True, help='database name for postgres')
+    parser.add_argument('--table_name', required=True, help='name of the table where we will write the results to')
+    parser.add_argument('--url', required=True, help='url of the csv file')
     args = parser.parse_args()
-    params = vars(args)
-    main(params)
+    main(args)
