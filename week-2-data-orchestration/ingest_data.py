@@ -47,7 +47,7 @@ def main_flow():
     port = '5432'
     db = 'ny_taxi'
     table_name = 'yellow_taxi_trips'
-    url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2022-01.parquet'
+    url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2022-03.parquet'
     log_subflow(table_name)
     raw_data = extract_data(url)
     transformed_data = transform_data(raw_data)
