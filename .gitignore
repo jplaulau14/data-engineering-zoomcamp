@@ -1,6 +1,8 @@
 venv/*
 data_pgadmin/
 ny_taxi_postgres_data/
+*.csv
+*.parquet
 
 # Created by https://www.toptal.com/developers/gitignore/api/terraform,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=terraform,python
