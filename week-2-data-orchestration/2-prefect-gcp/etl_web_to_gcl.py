@@ -23,14 +23,6 @@ def clean(df: pd.DataFrame, year: int) -> pd.DataFrame:
     df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
     df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
     print(f"post: column dtypes: {df.dtypes}")
-    
-    print(f"pre: missing passenger count: {(df['passenger_count'] == 0).sum()}")
-    df = df[df['passenger_count'] != 0]
-    print(f"post: missing passenger count: {(df['passenger_count'] == 0).sum()}")
-
-    print(f"pre: data with year before {year}: {df.tpep_pickup_datetime.dt.year.unique()}")
-    df = df[df.tpep_pickup_datetime.dt.year == year]
-    print(f"post: data with year before {year}: {df.tpep_pickup_datetime.dt.year.unique()}")
     return df
 
 @task()
@@ -38,7 +30,10 @@ def write_local(df: pd.DataFrame, color: str, dataset_file: str) -> str:
     """
     Write the data to a local file
     """
-    path = Path(f"data/{color}/{dataset_file}.parquet")
+    if not Path(f"data/gcs/{color}").exists():
+        Path(f"data/gcs/{color}").mkdir(parents=True)
+
+    path = Path(f"data/gcs/{color}/{dataset_file}.parquet")
     df.to_parquet(path, compression="gzip", index=False)
     return path
 

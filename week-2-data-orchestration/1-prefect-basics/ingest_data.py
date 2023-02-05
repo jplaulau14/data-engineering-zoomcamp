@@ -5,6 +5,7 @@ from time import time
 from prefect import flow, task
 from prefect.tasks import task_input_hash
 from datetime import timedelta
+from prefect_sqlalchemy import SqlAlchemyConnector
 
 def parquet_to_csv(parquet_file, csv_file):
     df = pd.read_parquet(parquet_file, engine = 'pyarrow')
@@ -41,19 +42,15 @@ def log_subflow(table_name):
 
 @flow(name='Ingest Data')
 def main_flow():
-    user = 'root'
-    password = 'root'
-    host = 'localhost'
-    port = '5432'
-    db = 'ny_taxi'
     table_name = 'yellow_taxi_trips'
-    url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2022-04.parquet'
+    url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2022-01.parquet'
     log_subflow(table_name)
     raw_data = extract_data(url)
     transformed_data = transform_data(raw_data)
-    engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
-    engine.connect()
-    ingest_data(transformed_data, table_name, engine)
+    connection_block = SqlAlchemyConnector.load("postgres-connector")
+    
+    with connection_block.get_connection(begin=False) as engine:
+        ingest_data(transformed_data, table_name, engine)
     
 
 if __name__ == '__main__':
