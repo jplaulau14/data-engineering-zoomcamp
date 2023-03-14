@@ -1,9 +1,0 @@
-pandas
-jupyter
-sqlalchemy
-psycopg2
-pyarrow
-pgcli
-psycopg2-binary
-psycopg2_binary
-psycopg_binary
