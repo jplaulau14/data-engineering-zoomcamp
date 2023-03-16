@@ -1,20 +1,21 @@
 services:
-  pgdatabase:
+  postgres:
     image: postgres:13
+    container_name: pg-database
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=ny_taxi
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: ny_taxi
     volumes:
-      - "./ny_taxi_postgres_data:/var/lib/postgresql/data:rw"
+      - ./ny_taxi_postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
   pgadmin:
     image: dpage/pgadmin4
-    volumes:
-      - ./data_pgadmin:/var/lib/pgadmin
+    container_name: pgadmin-2
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-      - PGADMIN_DEFAULT_PASSWORD=root
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
     ports:
       - "8080:80"
