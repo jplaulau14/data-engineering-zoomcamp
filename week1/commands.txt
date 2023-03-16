@@ -52,7 +52,7 @@ docker run -it \
     --table_name=yellow_taxi_trips \
     --url=${URL}
 
-python ingest_data.py \
+python ingest_data_green_taxi.py \
   --user=root \
   --password=root \
   --host=localhost \
