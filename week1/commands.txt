@@ -42,7 +42,7 @@ docker run -it \
     --url=${URL}
 
 docker run -it \
-    --network=week1_default
+    --network=week1_default \
     taxi_ingest:v001 \
     --user=root \
     --password=root \
