@@ -2,8 +2,10 @@ from pathlib import Path
 import pandas as pd 
 from prefect import flow, task
 from prefect_gcp.cloud_storage import GcsBucket
+from prefect.tasks import task_input_hash
+from datetime import timedelta
 
-@task(log_prints=True, retries=5)
+@task(log_prints=True, retries=5, cache_key_fn=task_input_hash, cache_expiration=timedelta(days=1))
 def extract(dataset_url: str) -> pd.DataFrame:
     """
     Extracts the dataset from the URL
