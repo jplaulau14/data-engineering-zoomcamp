@@ -1,13 +1,13 @@
 ###
 ### A complete description of a Prefect Deployment for flow 'etl-parent-flow'
 ###
-name: Parameterized ETL
+name: week-2-web-to-gcs
 description: null
 version: 7d8ae7e62e21bfb7f3561c3fe519a4d2
 # The work queue that will handle this deployment's runs
 work_queue_name: default
 tags: []
-parameters: { "color": "yellow", "months": [4, 5, 6], "year": 2021 }
+parameters: { "months": [9, 10, 11, 12], "year": 2021 }
 schedule: null
 infra_overrides: {}
 infrastructure:
@@ -28,7 +28,7 @@ flow_name: etl-parent-flow
 manifest_path: null
 storage: null
 path: /Users/pats/Desktop/courses/data-engineering-zoomcamp/week2
-entrypoint: parameterized_flow.py:etl_parent_flow
+entrypoint: flows/parameterized_flow.py:etl_parent_flow
 parameter_openapi_schema:
   title: Parameters
   type: object
