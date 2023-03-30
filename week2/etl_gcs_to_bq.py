@@ -42,17 +42,24 @@ def write_bq(df: pd.DataFrame) -> None:
         if_exists="append"
     )
 @flow()
-def etl_gcs_to_bq():
+def etl_gcs_to_bq(month: int, year: int, color: str = 'yellow'):
     """
     The main ETL function
     """
-    color = "yellow"
-    year = 2021
-    month = 1
-
     path = extract_from_gcs(color, year, month)
     df = transform(path)
     write_bq(df)
 
+@flow()
+def etl_parent_flow_to_bq(months: list[int], year: int, color: str = 'yellow'):
+    """
+    The main ETL function
+    """
+    for month in months:
+        etl_gcs_to_bq(month, year, color)
+
 if __name__ == "__main__":
-    etl_gcs_to_bq()
+    year = 2021
+    months = [1, 2, 3]
+    color = "yellow"
+    etl_parent_flow_to_bq(months, year, color)
