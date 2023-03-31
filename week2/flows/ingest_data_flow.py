@@ -10,20 +10,17 @@ from prefect_sqlalchemy import SqlAlchemyConnector
 
 @task(log_prints=True, retries=5, cache_key_fn=task_input_hash, cache_expiration=timedelta(days=1))
 def extract_data(url, chunksize=100000):
-    if not os.path.exists('data'):
-        os.mkdir('data')
-    if not os.path.exists('data/yellow_tripdata'):
-        os.mkdir('data/yellow_tripdata')
-    file_name = os.path.basename(url)
-    parquet_file = f'data/yellow_tripdata/{file_name}'
-    os.system(f'wget {url} -O {parquet_file}')
-    df = pd.read_parquet(parquet_file)
+    df = pd.read_parquet(url)
     return df
 
 @task(log_prints=True)
-def transform_data(df):
-    df['tpep_pickup_datetime'] = pd.to_datetime(df['tpep_pickup_datetime'])
-    df['tpep_dropoff_datetime'] = pd.to_datetime(df['tpep_dropoff_datetime'])
+def transform_data(df, color):
+    if color == "yellow":
+        df['tpep_pickup_datetime'] = pd.to_datetime(df['tpep_pickup_datetime'])
+        df['tpep_dropoff_datetime'] = pd.to_datetime(df['tpep_dropoff_datetime'])
+    elif color == "green":
+        df['lpep_pickup_datetime'] = pd.to_datetime(df['lpep_pickup_datetime'])
+        df['lpep_dropoff_datetime'] = pd.to_datetime(df['lpep_dropoff_datetime'])
     return df
 
 @task(log_prints=True)
@@ -33,12 +30,22 @@ def load_data(df, table_name):
         df.to_sql(name=table_name, con=engine, if_exists='append')
     
 @flow(name="Ingest Flow")
-def main_flow():
-    table_name = "yellow_taxi_trips"
-    url = "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2021-04.parquet"
-    df = extract_data(url)
-    df_transformed = transform_data(df)
+def etl_web_to_postgres(year: int, month: int, color: str):
+    dataset_file = f"{color}_tripdata_{year}-{month:02}"
+    dataset_url = f"https://d37ci6vzurychx.cloudfront.net/trip-data/{dataset_file}.parquet"
+    table_name = f"{color}_taxi_trips"
+    df = extract_data(dataset_url)
+    df_transformed = transform_data(df, color)
     load_data(df_transformed, table_name)
 
+@flow()
+def etl_parent_flow(months: list[int], years: list[int], color: str = "yellow"):
+    for year in years:
+        for month in months:
+            etl_web_to_postgres(year=year, month=month, color=color)
+
 if __name__ == '__main__':
-    main_flow()
+    months = [1, 2, 3]
+    years = [2021, 2022]
+    color = "yellow"
+    etl_parent_flow(months, years, color)
