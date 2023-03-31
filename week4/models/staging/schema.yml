@@ -1,0 +1,9 @@
+version: 2
+sources: 
+  - name: staging
+    database: yellow-taxi-trips-data-382114
+    schema: week4_trips_data_all
+
+    tables:
+      - name: green_tripdata
+      - name: yellow_tripdata
