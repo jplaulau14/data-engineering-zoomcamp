@@ -14,12 +14,16 @@ def extract(dataset_url: str) -> pd.DataFrame:
     return df
 
 @task(log_prints=True)
-def transform(df: pd.DataFrame) -> pd.DataFrame:
+def transform(df: pd.DataFrame, color: str) -> pd.DataFrame:
     """
     Transforms the dataset
     """
-    df['tpep_pickup_datetime'] = pd.to_datetime(df['tpep_pickup_datetime'])
-    df['tpep_dropoff_datetime'] = pd.to_datetime(df['tpep_dropoff_datetime'])
+    if color == "yellow":
+        df['tpep_pickup_datetime'] = pd.to_datetime(df['tpep_pickup_datetime'])
+        df['tpep_dropoff_datetime'] = pd.to_datetime(df['tpep_dropoff_datetime'])
+    elif color == "green":
+        df['lpep_pickup_datetime'] = pd.to_datetime(df['lpep_pickup_datetime'])
+        df['lpep_dropoff_datetime'] = pd.to_datetime(df['lpep_dropoff_datetime'])
     return df
 
 @task(log_prints=True)
@@ -53,7 +57,7 @@ def etl_web_to_gcs(year: int, month: int, color: str) -> None:
     dataset_url = f"https://d37ci6vzurychx.cloudfront.net/trip-data/{dataset_file}.parquet"
 
     df = extract(dataset_url)
-    df_transformed = transform(df)
+    df_transformed = transform(df, color)
     path = write_local(df_transformed, color, dataset_file)
     print(path)
     write_gcs(path)

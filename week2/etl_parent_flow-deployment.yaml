@@ -1,13 +1,13 @@
 ###
 ### A complete description of a Prefect Deployment for flow 'etl-parent-flow'
 ###
-name: week-2-web-to-gcs
+name: green-taxi-to-gcs
 description: null
-version: 7d8ae7e62e21bfb7f3561c3fe519a4d2
+version: f2a847048e508330a3505eee2c139cf3
 # The work queue that will handle this deployment's runs
 work_queue_name: default
 tags: []
-parameters: { "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "year": 2022 }
+parameters: { "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "year": 2022, "color": "green" }
 schedule: null
 infra_overrides: {}
 infrastructure:
