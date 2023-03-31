@@ -37,11 +37,11 @@ models:
     example:
       materialized: view
 
-  seeds:
-    week4_taxi_trips:
-      taxi_zone_lookup:
-        +column_types:
-          locationid: numeric
+seeds:
+  week4_taxi_trips:
+    taxi_zone_lookup:
+      +column_types:
+        locationid: numeric
 
 vars:
   payment_type_values: [1, 2, 3, 4, 5, 6]
